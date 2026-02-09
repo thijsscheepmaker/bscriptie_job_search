@@ -129,11 +129,20 @@ type1_params[1] = 47.0856   # k1
 type1_params[3] = 4.0364   # mu1
 
 type2_params = base_params.copy()
-type2_params[1] = 40   # k2
-type2_params[3] = 3.5   # mu2  
+type2_params[1] = 148.35   # k2
+type2_params[3] = 4.0364   # mu2  
 
-# Type shares
-q1, q2 = 0.5, 0.5
+# Female types
+type1F_params = base_params.copy()
+type1F_params[1] = 47.0856   # k1
+type1F_params[3] = 3.5  # mu1
+
+type2F_params = base_params.copy()
+type2F_params[1] = 148.35    # k2
+type2F_params[3] = 3.5   # mu2  
+
+# Type shares (eq shares?)
+q1, q2, q3, q4 = 0.25, 0.25, 0.25, 0.25
 
 # Policy intervention: 50% reduction in search costs for period 5 (index 4)
 intervention_period = 4  # Period 5 (0-indexed as 4)
@@ -146,11 +155,19 @@ k1_vec[intervention_period] = type1_params[1] * (1 - cost_reduction)  # Reduce b
 k2_vec = np.ones(T) * type2_params[1]  # Base k2 for all periods  
 k2_vec[intervention_period] = type2_params[1] * (1 - cost_reduction)  # Reduce by 35% in period 5
 
+k1F_vec = np.ones(T) * type1F_params[1]  # Base k1 for female type all periods 
+k1F_vec[intervention_period] = type1F_params[1] * (1 - cost_reduction)  # Reduce by 35% in period 5
+
+k2F_vec = np.ones(T) * type2F_params[1]  # Base k2 for female type all periods  
+k2F_vec[intervention_period] = type2F_params[1] * (1 - cost_reduction)  # Reduce by 35% in period 5
+
 print(f"Policy intervention details:")
 print(f"- Target period: {intervention_period + 1} (period 5)")
 print(f"- Cost reduction: {cost_reduction*100}%")
 print(f"- Type 1 k: {type1_params[1]:.4f} → {k1_vec[intervention_period]:.4f}")
 print(f"- Type 2 k: {type2_params[1]:.4f} → {k2_vec[intervention_period]:.4f}")
+print(f"- Type 1 Female k: {type1F_params[1]:.4f} → {k1F_vec[intervention_period]:.4f}")
+print(f"- Type 2 Female k: {type2F_params[1]:.4f} → {k2F_vec[intervention_period]:.4f}")
 print()
 
 # ============================================================================
@@ -160,10 +177,16 @@ print()
 print("=== SOLVING BASELINE MODEL (NO INTERVENTION) ===")
 print("Type 1: k={:.4f}, μ={:.4f}, share={:.1f}".format(type1_params[1], type1_params[3], q1))
 print("Type 2: k={:.4f}, μ={:.4f}, share={:.1f}".format(type2_params[1], type2_params[3], q2))
+print("Type 1 Female: k={:.4f}, μ={:.4f}, share={:.1f}".format(type1F_params[1], type1F_params[3], q1))
+print("Type 2 Female: k={:.4f}, μ={:.4f}, share={:.1f}".format(type2F_params[1], type2F_params[3], q2))
 
 # Solve baseline model
 s1_base, logphi1_base, haz1_base, logw1_base, surv1_base, D1_base, Ew1_base = solveSingleTypeModelPolicy(type1_params, inst)
 s2_base, logphi2_base, haz2_base, logw2_base, surv2_base, D2_base, Ew2_base = solveSingleTypeModelPolicy(type2_params, inst)
+
+# Test solving for female types baseline
+s1F_base, logphi1F_base, haz1F_base, logw1F_base, surv1F_base, D1F_base, Ew1F_base = solveSingleTypeModelPolicy(type1F_params, inst)
+s2F_base, logphi2F_base, haz2F_base, logw2F_base, surv2F_base, D2F_base, Ew2F_base = solveSingleTypeModelPolicy(type2F_params, inst)
 
 # ============================================================================
 # SOLVE POLICY MODEL (WITH INTERVENTION)
@@ -174,6 +197,10 @@ print("\n=== SOLVING POLICY MODEL (WITH INTERVENTION) ===")
 # Solve policy model with time-varying costs
 s1_policy, logphi1_policy, haz1_policy, logw1_policy, surv1_policy, D1_policy, Ew1_policy = solveSingleTypeModelPolicy(type1_params, inst, k1_vec)
 s2_policy, logphi2_policy, haz2_policy, logw2_policy, surv2_policy, D2_policy, Ew2_policy = solveSingleTypeModelPolicy(type2_params, inst, k2_vec)
+
+# Female types with time-varying
+s1F_policy, logphi1F_policy, haz1F_policy, logw1F_policy, surv1F_policy, D1F_policy, Ew1F_policy = solveSingleTypeModelPolicy(type1F_params, inst, k1F_vec)
+s2F_policy, logphi2F_policy, haz2F_policy, logw2F_policy, surv2F_policy, D2F_policy, Ew2F_policy = solveSingleTypeModelPolicy(type2F_params, inst, k2F_vec)
 
 # ============================================================================
 # CALCULATE AGGREGATES FOR BOTH SCENARIOS
@@ -220,6 +247,11 @@ surv_agg_base, comp1_base, comp2_base, haz_agg_base, s_agg_base, logphi_agg_base
 surv_agg_policy, comp1_policy, comp2_policy, haz_agg_policy, s_agg_policy, logphi_agg_policy, logw_agg_policy = calculate_aggregates(
     s1_policy, s2_policy, logphi1_policy, logphi2_policy, haz1_policy, haz2_policy,
     logw1_policy, logw2_policy, surv1_policy, surv2_policy, q1, q2, T)
+
+# Aggregates for female types; adjust calculatre aggregates first
+
+
+
 
 # ============================================================================
 # SUMMARY STATISTICS
@@ -348,7 +380,7 @@ ax4.grid(True, alpha=0.3)
 
 plt.tight_layout()
 
-plt.savefig(r'C:\Users\Thijs\OneDrive\Uni\Bachelorscriptie\HOLEmodel_policy_intervention_mumain2.png', 
+plt.savefig(r'C:\Users\Thijs\Dropbox\Thijs Scheepmaker\test\output\plot1.png', 
             dpi=300, bbox_inches='tight')
 
 # ============================================================================
@@ -396,7 +428,7 @@ ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
 
-plt.savefig(r'C:\Users\Thijs\OneDrive\Uni\Bachelorscriptie\HOLEmodel_policy_intervention_muappendix2.png', 
+plt.savefig(r'C:\Users\Thijs\Dropbox\Thijs Scheepmaker\test\output\plot2.png', 
             dpi=300, bbox_inches='tight')
 
 print("\n=== MODIFIED FIGURES CREATED ===")
