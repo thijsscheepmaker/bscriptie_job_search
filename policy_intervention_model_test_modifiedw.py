@@ -129,8 +129,8 @@ type1_params[1] = 47.0856   # k1
 type1_params[3] = 4.0364   # mu1
 
 type2_params = base_params.copy()
-type2_params[1] = 40   # k2
-type2_params[3] = 3.5   # mu2  
+type2_params[1] = 148.35   # k2
+type2_params[3] = 4.0364    # mu2  
 
 # Type shares
 q1, q2 = 0.5, 0.5
@@ -348,7 +348,7 @@ ax4.grid(True, alpha=0.3)
 
 plt.tight_layout()
 
-plt.savefig(r'C:\Users\Thijs\OneDrive\Uni\Bachelorscriptie\HOLEmodel_policy_intervention_mumain2.png', 
+plt.savefig(r'C:\Users\Thijs\Dropbox\Thijs Scheepmaker\test\output\HOLEmodel_policy_intervention_mumain2.png', 
             dpi=300, bbox_inches='tight')
 
 # ============================================================================
@@ -396,7 +396,7 @@ ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
 
-plt.savefig(r'C:\Users\Thijs\OneDrive\Uni\Bachelorscriptie\HOLEmodel_policy_intervention_muappendix2.png', 
+plt.savefig(r'C:\Users\Thijs\Dropbox\Thijs Scheepmaker\test\output\HOLEmodel_policy_intervention_muappendix2.png', 
             dpi=300, bbox_inches='tight')
 
 print("\n=== MODIFIED FIGURES CREATED ===")
